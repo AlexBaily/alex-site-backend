@@ -4,14 +4,11 @@ import (
 	"log"
 	"net/http"
 	"strings"
-
-	"github.com/gorilla/mux"
-
 )
 
-#Http handler for responding to http/s requests.
+//Http handler for responding to http/s requests.
 func roothandler(w http.ResponseWriter, r *http.Request) {
-	#Set response headers.
+	//Set response headers.
 	w.Header().Add("statusDescription", "200 OK")
 	w.Header().Set("statusDescription", "200 OK")
 	w.Header().Set("Content-Type", "application/json")
@@ -21,7 +18,7 @@ func roothandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	#Create a new mux router.
+	//Create a new mux router.
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", roothandler)
 	log.Fatal(http.ListenAndServe(":8080", mux))
