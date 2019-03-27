@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: site-backend--deployment
+spec:
+  selector:
+    matchLabels:
+      app: site-backend
+  replicas: 2 
+  template:
+    metadata:
+      labels:
+        app: site-backend
+    spec:
+      containers:
+      - name: alex-site-backend
+        image: alexbaily/alex-site-backend:firstrevision
+        ports:
+        - containerPort: 8080
