@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: site-backend-service
+spec:
+  selector:
+    app: site-backend
+  ports:
+  - protocol: TCP
+    #The first port is the one that is exposed to the K8s cluster internally
+    #The targetPort is the port that the application exposes. 
+    port: 8081
+    targetPort: 8080
