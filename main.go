@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+//	"github.com/aws/aws-sdk-go/aws/session"
+//	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
 //Http handler for responding to http/s requests.
@@ -16,10 +16,11 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("statusDescription", "200 OK")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	URISegments := strings.Split(r.URL.Path, "/")
-	w.Write([]byte(URISegments[1]))
+
+	w.Write([]byte("{key:value}"))
 }
 
+/*
 func fullScan() {
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -42,7 +43,7 @@ func fullScan() {
 	    fmt.Println(*n)
 	}
 
-}
+}*/ 
 
 func main() {
 	//Create a new mux router.
