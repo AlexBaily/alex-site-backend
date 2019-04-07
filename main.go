@@ -19,6 +19,10 @@ var (
 	exrtable string = os.Getenv("EXRTABLE")
 )
 
+type Record struct {
+            Exercise   string
+}
+
 //Http handler for responding to http/s requests.
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	//Set response headers.
@@ -61,8 +65,7 @@ func fullScan()(tables []byte) {
 	 TableName:                 aws.String(exrtable),
 	}
 
-	// Get the list of tables 
-	//Lifted from the AWS docs - This just gets a list of tables
+	//Complete a scan of the table with the params from above
 	result, err := svc.Scan(params)
 	if err != nil {
 	 fmt.Println(err)
@@ -73,9 +76,6 @@ func fullScan()(tables []byte) {
 		tables += keys
 	}*/
 
-	type Record struct {
-	    Exercise   string
-	}
 
 
 	recs := []Record{}
