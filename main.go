@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"fmt"
+	"encoding/json"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -11,6 +13,10 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 
+)
+
+var (
+	exrtable string = os.Getenv("EXRTABLE")
 )
 
 //Http handler for responding to http/s requests.
@@ -25,7 +31,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func fullScan()(tables string) {
+func fullScan()(tables []byte) {
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 	    SharedConfigState: session.SharedConfigEnable,
@@ -44,15 +50,15 @@ func fullScan()(tables string) {
 		WithProjection(projection).
 		Build()
 	if err != nil {
-		fmt.Println(err)
+	 fmt.Println(err)
 	}
 	//Load up the parameters into a struct
 	params := &dynamodb.ScanInput{
-	ExpressionAttributeNames:  expr.Names(),
-	ExpressionAttributeValues: expr.Values(),
-	FilterExpression:          expr.Filter(),
-	ProjectionExpression:      expr.Projection(),
-	TableName:                 aws.String("workouts"),
+	 ExpressionAttributeNames:  expr.Names(),
+	 ExpressionAttributeValues: expr.Values(),
+	 FilterExpression:          expr.Filter(),
+	 ProjectionExpression:      expr.Projection(),
+	 TableName:                 aws.String(exrtable),
 	}
 
 	// Get the list of tables 
@@ -79,8 +85,11 @@ func fullScan()(tables string) {
          panic(fmt.Sprintf("failed to unmarshal Dynamodb Scan Items, %v", err))
 	}
 
-
-	tables = recs[0].Exercise
+	//Marshal the records into JSON
+	tables, err = json.Marshal(recs[0])
+	if err != nil {
+	 panic(fmt.Sprintf("failed to marshal records, %v", err))
+	}
 	//log.Printf("records %+v", result)
 	//log.Printf("records %+v", recs[0].Exercise)
 	return
