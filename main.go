@@ -20,7 +20,11 @@ var (
 )
 
 type Record struct {
-            Exercise   string
+	UserID       string
+	ExerciseName string
+	ExerciseDate string
+	Weight       int
+	Reps         int
 }
 
 //Http handler for responding to http/s requests.
