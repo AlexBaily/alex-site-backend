@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"os"
+	"strings"
 
 	"github.com/gorilla/mux"
 
@@ -34,9 +35,24 @@ type Record struct {
 //Middleware to read the Authorization header for the Cognito JWT token
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		next.ServeHTTP(w,r)
-	}
-
+		//Don't bother checking the Auth header if we are just going to route
+		if r.URL.Path == "/" {
+			next.ServeHTTP(w,r)
+		} else {
+			//Get the token
+                	token := r.Header.Get("Authorization")
+			//log.Printf("token %+v", token)
+			jwtToken := strings.Split(token, " ")
+			//Check is the jwtToken contains an actual token
+			if len(jwtToken) <= 1 {
+				//Return a 403 if no token is found
+				http.Error(w, "Forbidden", http.StatusForbidden)
+			} else {
+				log.Printf("jwt %+v", jwtToken[1])
+				next.ServeHTTP(w,r)
+			}
+		}
+	})
 }
 
 //Http handler for responding to http/s requests.
@@ -126,5 +142,6 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", rootHandler)
 	r.HandleFunc("/exercises", exerciseHandler)
+	r.Use(authMiddleware)
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
