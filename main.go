@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"fmt"
-	"encoding/json"
 	"os"
+	"log"
+	"fmt"
 	"strings"
+	"net/http"
+	"encoding/json"
 
 	"github.com/gorilla/mux"
 
@@ -40,7 +40,7 @@ func authMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w,r)
 		} else {
 			//Get the token
-                	token := r.Header.Get("Authorization")
+			token := r.Header.Get("Authorization")
 			//log.Printf("token %+v", token)
 			jwtToken := strings.Split(token, " ")
 			//Check is the jwtToken contains an actual token
@@ -80,7 +80,7 @@ func exerciseHandler(w http.ResponseWriter, r *http.Request) {
 
 func queryTable(UserID string)(queryJson []byte) {
         sess := session.Must(session.NewSessionWithOptions(session.Options{
-            SharedConfigState: session.SharedConfigEnable,
+		SharedConfigState: session.SharedConfigEnable,
         }))
 
         svc := dynamodb.New(sess)
@@ -98,21 +98,21 @@ func queryTable(UserID string)(queryJson []byte) {
                 WithProjection(projection).
                 Build()
         if err != nil {
-         fmt.Println(err)
+		fmt.Println(err)
         }
         //Load up the parameters into a struct
         params := &dynamodb.ScanInput{
-         ExpressionAttributeNames:  expr.Names(),
-         ExpressionAttributeValues: expr.Values(),
-         FilterExpression:          expr.Filter(),
-         ProjectionExpression:      expr.Projection(),
-         TableName:                 aws.String(exrtable),
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+		ProjectionExpression:      expr.Projection(),
+		TableName:                 aws.String(exrtable),
         }
 
         //Complete a scan of the table with the params from above
         result, err := svc.Scan(params)
         if err != nil {
-         fmt.Println(err)
+		fmt.Println(err)
         }
         //Used to check what keys are returned from the table scan
         /* 
@@ -124,13 +124,13 @@ func queryTable(UserID string)(queryJson []byte) {
 
         err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &recs)
         if err != nil {
-         panic(fmt.Sprintf("failed to unmarshal Dynamodb Scan Items, %v", err))
+		panic(fmt.Sprintf("failed to unmarshal Dynamodb Scan Items, %v", err))
         }
 
         //Marshal the records into JSON
         queryJson, err = json.Marshal(recs[0])
         if err != nil {
-         panic(fmt.Sprintf("failed to marshal records, %v", err))
+		panic(fmt.Sprintf("failed to marshal records, %v", err))
         }
         log.Printf("records %+v", recs[0])
         return
