@@ -49,7 +49,14 @@ func authMiddleware(next http.Handler) http.Handler {
 				http.Error(w, "Forbidden", http.StatusForbidden)
 			} else {
 				log.Printf("jwt %+v", jwtToken[1])
-				next.ServeHTTP(w,r)
+				jwtTokenArray := strings.Split(jwtToken[1], ".")
+				//Checks to make sure that the jwtTokenArray has 3 parts.
+				//Thsi will be the header, payload and signature of the jwt token
+				if len(jwtTokenArray) <= 2 {
+					http.Error(w, "Forbidden", http.StatusForbidden)
+				} else {
+					next.ServeHTTP(w,r)
+				}
 			}
 		}
 	})
