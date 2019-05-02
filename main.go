@@ -4,11 +4,13 @@ import (
 	"os"
 	"log"
 	"fmt"
+	"context"
 	"strings"
 	"net/http"
 	"encoding/json"
 
 	"github.com/gorilla/mux"
+	"github.com/dgrijalva/jwt-go"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -18,9 +20,10 @@ import (
 
 )
 
-//"Global" variable for the exerise table.
+//"Global" variables.
 var (
 	exrtable string = os.Getenv("EXRTABLE")
+	tokenVerifyUrl string = os.Getenv("TOKENURL")
 )
 
 //Record struct that will house the DynamoDB records.
@@ -32,10 +35,27 @@ type Record struct {
 	Reps         int
 }
 
+func getClaims(tokenString string) (jwt.MapClaims, bool) {
+	//Parse the JWT token, no verification going on at the moment
+	if token, _ := jwt.Parse(tokenString, nil); token != nil {
+		log.Printf("parsed token: %+v", token)
+		//Get the claims from the parsed token, && token.Valid will be used.
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			log.Printf("claims = %+v", claims)
+			return claims, true
+		} else {
+			log.Printf("Invalid JWT Token, token = %+v", tokenString)
+			return nil, false
+		}
+	} else {
+		return nil, false
+	}
+}
+
 //Middleware to read the Authorization header for the Cognito JWT token
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//Don't bother checking the Auth header if we are just going to route
+		//Don't bother checking the Auth header if we are just going to root
 		if r.URL.Path == "/" {
 			next.ServeHTTP(w,r)
 		} else {
@@ -48,15 +68,15 @@ func authMiddleware(next http.Handler) http.Handler {
 				//Return a 403 if no token is found
 				http.Error(w, "Forbidden", http.StatusForbidden)
 			} else {
-				log.Printf("jwt %+v", jwtToken[1])
-				jwtTokenArray := strings.Split(jwtToken[1], ".")
-				//Checks to make sure that the jwtTokenArray has 3 parts.
-				//Thsi will be the header, payload and signature of the jwt token
-				if len(jwtTokenArray) <= 2 {
-					http.Error(w, "Forbidden", http.StatusForbidden)
-				} else {
-					next.ServeHTTP(w,r)
-				}
+				claims, ok := getClaims(jwtToken[1])
+				if ok {
+					log.Printf("jwtAuth %+v", claims["sub"])
+					//Add the context to the next request
+					//The sub value is the UUID for the user
+					ctx := context.WithValue(r.Context(),
+						"sub", claims["sub"])
+					next.ServeHTTP(w,r.WithContext(ctx))
+				} 
 			}
 		}
 	})
