@@ -76,7 +76,7 @@ func authMiddleware(next http.Handler) http.Handler {
 					ctx := context.WithValue(r.Context(),
 						"sub", claims["sub"])
 					next.ServeHTTP(w,r.WithContext(ctx))
-				} 
+				}
 			}
 		}
 	})
@@ -99,10 +99,13 @@ func exerciseHandler(w http.ResponseWriter, r *http.Request) {
         w.Header().Set("statusDescription", "200 OK")
         w.Header().Set("Content-Type", "application/json")
         w.WriteHeader(http.StatusOK)
-	log.Printf("records %+v", queryTable("0000"))
+	//log.Printf("records %+v", queryTable("0000"))
 	//retrieve the UserID variable
 
-        w.Write(queryTable("0000"))
+	//Get the uuid pased from the authMiddleware context
+	uuid := r.Context().Value("sub")
+
+        w.Write(queryTable(uuid.(string)))
 }
 
 func queryTable(UserID string)(queryJson []byte) {
