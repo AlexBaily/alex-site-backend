@@ -1,11 +1,15 @@
 pipeline {
-    agent { 
-        dockerfile true
-    }
+    agent any
     stages {
         stage('Test') {
             steps {
-                sh 'go version'
+                script {
+
+                    def siteImage = docker.build("alexsite-back:${env.BUILD_ID}")
+                    siteImage.inside {
+                        sh 'echo "Inside the container"'
+                    }
+                } 
             }
         }
     }
