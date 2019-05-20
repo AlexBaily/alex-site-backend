@@ -9,6 +9,7 @@ pipeline {
                     siteImage.inside {
                         sh 'echo "Inside the container"'
                     }
+                    siteImage.push('latest')
                 } 
             }
         }
