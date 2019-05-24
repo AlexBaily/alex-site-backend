@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: alex-site-backend
-        image: alexbaily/alex-site-backend:firstrevision
+        image: alexbaily/alex-site-backend:latest
         ports:
         - containerPort: 8080
